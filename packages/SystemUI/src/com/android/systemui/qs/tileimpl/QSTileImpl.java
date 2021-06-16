@@ -14,8 +14,6 @@
 
 package com.android.systemui.qs.tileimpl;
 
-import static androidx.lifecycle.Lifecycle.State.CREATED;
-import static androidx.lifecycle.Lifecycle.State.DESTROYED;
 import static androidx.lifecycle.Lifecycle.State.RESUMED;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
 
@@ -198,7 +196,6 @@ public abstract class QSTileImpl<TState extends State> implements QSTile, Lifecy
         mActivityStarter = activityStarter;
 
         resetStates();
-        mUiHandler.post(() -> mLifecycle.setCurrentState(CREATED));
     }
 
     protected final void resetStates() {
@@ -515,27 +512,18 @@ public abstract class QSTileImpl<TState extends State> implements QSTile, Lifecy
         if (listening) {
             if (mListeners.add(listener) && mListeners.size() == 1) {
                 if (DEBUG) Log.d(TAG, "handleSetListening true");
+                mLifecycle.setCurrentState(RESUMED);
                 handleSetListening(listening);
-                mUiHandler.post(() -> {
-                    // This tile has been destroyed, the state should not change anymore and we
-                    // should not refresh it anymore.
-                    if (mLifecycle.getCurrentState().equals(DESTROYED)) return;
-                    mLifecycle.setCurrentState(RESUMED);
                     if (mReadyState == READY_STATE_NOT_READY) {
                         mReadyState = READY_STATE_READYING;
                     }
-                    refreshState(); // Ensure we get at least one refresh after listening.
-                });
+                refreshState(); // Ensure we get at least one refresh after listening.
             }
         } else {
             if (mListeners.remove(listener) && mListeners.size() == 0) {
                 if (DEBUG) Log.d(TAG, "handleSetListening false");
+                mLifecycle.setCurrentState(STARTED);
                 handleSetListening(listening);
-                mUiHandler.post(() -> {
-                    // This tile has been destroyed, the state should not change anymore.
-                    if (mLifecycle.getCurrentState().equals(DESTROYED)) return;
-                    mLifecycle.setCurrentState(STARTED);
-                });
             }
         }
         updateIsFullQs();
@@ -562,14 +550,9 @@ public abstract class QSTileImpl<TState extends State> implements QSTile, Lifecy
         mQSLogger.logTileDestroyed(mTileSpec, "Handle destroy");
         if (mListeners.size() != 0) {
             handleSetListening(false);
-            mListeners.clear();
         }
         mCallbacks.clear();
         mHandler.removeCallbacksAndMessages(null);
-        // This will force it to be removed from all controllers that may have it registered.
-        mUiHandler.post(() -> {
-            mLifecycle.setCurrentState(DESTROYED);
-        });
     }
 
     protected void checkIfRestrictionEnforcedByAdminOnly(State state, String userRestriction) {

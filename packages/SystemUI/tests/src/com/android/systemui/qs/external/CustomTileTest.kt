@@ -56,7 +56,6 @@ import org.mockito.MockitoAnnotations
 
 @SmallTest
 @RunWith(AndroidTestingRunner::class)
-@TestableLooper.RunWithLooper(setAsMainLooper = true)
 class CustomTileTest : SysuiTestCase() {
 
     companion object {
