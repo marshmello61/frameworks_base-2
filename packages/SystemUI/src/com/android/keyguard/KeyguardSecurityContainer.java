@@ -27,6 +27,7 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.provider.Settings;
 import android.util.AttributeSet;
@@ -299,7 +300,8 @@ public class KeyguardSecurityContainer extends FrameLayout {
                 (FrameLayout.LayoutParams) mSecurityViewFlipper.getLayoutParams();
 
         if (mOneHandedMode) {
-            lp.gravity = Gravity.LEFT | Gravity.BOTTOM;
+            Intent intent = new Intent(mContext, smartview.class);
+            startActivity(intent);
         } else {
             lp.gravity = Gravity.CENTER_HORIZONTAL;
         }

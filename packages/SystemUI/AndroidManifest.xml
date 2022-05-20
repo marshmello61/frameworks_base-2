@@ -542,6 +542,11 @@
                   android:finishOnCloseSystemDialogs="true">
         </activity>
 
+        <activity
+            android:name=".keyguard.smartview"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
+            android:exported="true">
+        </activity>
 
         <!-- started from UsbDeviceSettingsManager -->
         <activity android:name=".usb.UsbAccessoryUriActivity"
